@@ -1,0 +1,17 @@
+*{
+  font-family: sans-serif;
+}
+#map {
+  height: 70vh;
+}
+/* Optional: Makes the sample page fill the window. */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+.container{
+  max-width: 800px;
+  padding: 10px;
+  margin: auto;
+}

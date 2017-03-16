@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html >
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <title>Parking Me App</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+  <body>
+    <div id="app">
+      <div id="side">
+        <h1><img src="img/park-me.png" alt=""></h1>
+        <p>Park Me lets you quickly find available parkings near you in real time.</p>
+        <h3>Find parkings near you</h3>
+        <form ><button id="find">Find</button></form>
+        <div id="addParking">
+          <h3>Add a parking</h3>
+          <form action="">
+            <input type="text" id="lat" placeholder="Lattitude"/>
+            <input type="text" id="lng" placeholder="Longtitude"/>
+            <input type="text" id="name" placeholder="Parking name"/>
+            <button  id="submit" type="submit">Add parking </button>
+          </form>
+        </div>
+        
+        <p id="copy"><small>&copy <a href="http://toubal.com"> Analogique Solutions</a> 2017 Allrights reserved.</small></p>
+      </div>
+      <div id="map">
+        
+      </div>
+    </div>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC_0FF6obnd_oHtGX6Zcsxh-SP9f7qkmSo&callback=initMap"
+    async defer></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="js/main.js"></script>
+    
+  </body>
+</html>
