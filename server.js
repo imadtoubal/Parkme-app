@@ -14,10 +14,12 @@ connection.connect();
 ///Testing database in server console
 connection.query('SELECT * FROM parkings', function (error, results, fields) {
   if (error) console.log(error);
-  for (var i = 0; i < results.length; i++) {
-    console.log(results[i].id + '|' + results[i].lat + '|' + results[i].lng + '|' + results[i].name)
+  else {
+    for (var i = 0; i < results.length; i++) {
+      console.log(results[i].id + '\t|' + results[i].lat + '\t|' + results[i].lng + '\t|' + results[i].name)
+    }
+    parkings = results;
   }
-  parkings = results;
 });
 console.log(parkings);
 
