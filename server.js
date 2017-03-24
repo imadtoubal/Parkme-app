@@ -5,7 +5,7 @@ var mysql = require('mysql');
 ///Initialization
 var app = express();
 var parkings;
-
+var apiKey = 'lqAna7NllTTuK0nVRaro';
 ///Connecting to database
 var config = require('./config');
 var connection = mysql.createConnection(config);
@@ -39,7 +39,7 @@ function geteAll(request, response) {
   response.send(parkings);
 }
 
-app.get('/add/:lng/:lat/:name', addParking);
+app.get('/add/' + apiKey + '/:lng/:lat/:name/:description/:a_lots/:t_lots', addParking);
 
 function addParking(request, response) {
   //connection.connect();
@@ -48,7 +48,10 @@ function addParking(request, response) {
   var parking = {
     "lat": Number(data.lng),
     "lng": Number(data.lat),
-    "name": data.name
+    "name": data.name,
+    "description": data.description,
+    "a_lots": data.a_lots,
+    "t_lots": data.t_lots,
   };
 
   console.log(parking);
@@ -79,12 +82,36 @@ function nearParkings(request, response) {
       response.send("Something happened [check mysql]");
     }
 
-    console.log(results);
+    //console.log(results);
     response.send(results);
   });
 
 }
 
+//setting a pin to user
+app.get('/getpin/:id', function (request, response) {
+  var id = request.params.id;
+  var pin = Math.floor(1000 + Math.random() * 9000);
+  connection.query('update maps.parkings set pin =' + pin + ' where id = ' + id, function (error, results, fields) {
+    if (error)
+      console.log("something went wrong");
+  });
+  response.send({ pin: pin });
+});
+
+
+//checking at parking entrance
+app.get('/setpin/:id/:pin', function (request, response) {
+  var data = request.params;
+  connection.query('select * from maps.parkings where id = ' + data.id, function (error, results, fields) {
+    if (error)
+      respone.send(error);
+    if (results[0].pin == data.pin)
+      response.send("Success");
+    else
+      response.send("Fail");
+  });
+});
 //USEFULL FUNCTIONS==========================================
 
 function exists(obj, list) {

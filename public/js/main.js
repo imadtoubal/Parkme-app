@@ -1,3 +1,5 @@
+//$(document).ready(function () {
+
 //Global Variables for the map
 var ctrls;
 var map;
@@ -6,7 +8,7 @@ var currentLocationMarker;
 var nearParkings = [];
 //Loading parkings with JQuery
 var markers = new Object();
-
+var iw;
 
 // if(navigator.geolocation) {
 //   navigator.geolocation.getCurrentPosition(function (position){
@@ -24,7 +26,7 @@ var directionsDisplay;
 
 
 //Initialize map with markers
-function initMap() {
+window.initMap = function () {
   directionsService = new google.maps.DirectionsService;
   directionsDisplay = new google.maps.DirectionsRenderer({
     suppressMarkers: true,
@@ -44,6 +46,143 @@ function initMap() {
           },
           zoom: globalZoom,
           disableDefaultUI: true,
+          styles: [
+            {
+              "featureType": "all",
+              "elementType": "labels.text.fill",
+              "stylers": [
+                {
+                  "color": "#ffffff"
+                }
+              ]
+            },
+            {
+              "featureType": "all",
+              "elementType": "labels.text.stroke",
+              "stylers": [
+                {
+                  "color": "#000000"
+                },
+                {
+                  "lightness": 13
+                }
+              ]
+            },
+            {
+              "featureType": "administrative",
+              "elementType": "geometry.fill",
+              "stylers": [
+                {
+                  "color": "#000000"
+                }
+              ]
+            },
+            {
+              "featureType": "administrative",
+              "elementType": "geometry.stroke",
+              "stylers": [
+                {
+                  "color": "#144b53"
+                },
+                {
+                  "lightness": 14
+                },
+                {
+                  "weight": 1.4
+                }
+              ]
+            },
+            {
+              "featureType": "landscape",
+              "elementType": "all",
+              "stylers": [
+                {
+                  "color": "#08304b"
+                }
+              ]
+            },
+            {
+              "featureType": "poi",
+              "elementType": "geometry",
+              "stylers": [
+                {
+                  "color": "#0c4152"
+                },
+                {
+                  "lightness": 5
+                }
+              ]
+            },
+            {
+              "featureType": "road.highway",
+              "elementType": "geometry.fill",
+              "stylers": [
+                {
+                  "color": "#000000"
+                }
+              ]
+            },
+            {
+              "featureType": "road.highway",
+              "elementType": "geometry.stroke",
+              "stylers": [
+                {
+                  "color": "#0b434f"
+                },
+                {
+                  "lightness": 25
+                }
+              ]
+            },
+            {
+              "featureType": "road.arterial",
+              "elementType": "geometry.fill",
+              "stylers": [
+                {
+                  "color": "#000000"
+                }
+              ]
+            },
+            {
+              "featureType": "road.arterial",
+              "elementType": "geometry.stroke",
+              "stylers": [
+                {
+                  "color": "#0b3d51"
+                },
+                {
+                  "lightness": 16
+                }
+              ]
+            },
+            {
+              "featureType": "road.local",
+              "elementType": "geometry",
+              "stylers": [
+                {
+                  "color": "#000000"
+                }
+              ]
+            },
+            {
+              "featureType": "transit",
+              "elementType": "all",
+              "stylers": [
+                {
+                  "color": "#146474"
+                }
+              ]
+            },
+            {
+              "featureType": "water",
+              "elementType": "all",
+              "stylers": [
+                {
+                  "color": "#021019"
+                }
+              ]
+            }
+          ]
         };
 
         //initializing and drawing the map on the document
@@ -51,6 +190,21 @@ function initMap() {
 
         getParkings();
         directionsDisplay.setMap(map);
+        iw = new google.maps.InfoWindow();
+        console.log(nearParkings);
+        // google.maps.event.addListener(nearParkings, 'click', function () {
+        //   iw.setContent(this.html);
+        //   iw.open(map, this);
+        // });
+        for (var i = 0; i < nearParkings.length; i++) {
+          nearParkings[i].addListener('click', function () {
+            iw.setContent(this.html);
+            iw.open(map, this);
+
+          });
+
+        }
+
         calculateAndDisplayRoute(directionsService, directionsDisplay, nearParkings[0]);
         autoUpdate();
       });
@@ -91,7 +245,7 @@ function configMap(c) {
   //making a marker showing user location
   currentLocationMarker = new google.maps.Marker({
     position: c.center,
-    icon: 'http://localhost:3000/img/iconred.png',
+    icon: './img/iconred.png',
     map: map
   });
 }
@@ -99,14 +253,20 @@ function configMap(c) {
 //function for adding markers
 function getParkings() {
   for (var i = 0; i < markers.length; i++) {
-    nearParkings.push(new google.maps.Marker({
-      position: {
-        lat: markers[i].lat,
-        lng: markers[i].lng
-      },
-      icon: 'http://localhost:3000/img/icon.png',
-      map: map
-    }));
+    if (markers[i].a_lots != 0)
+      nearParkings.push(new google.maps.Marker({
+        position: {
+          lat: markers[i].lat,
+          lng: markers[i].lng
+        },
+        icon: './img/icon.png',
+        map: map,
+        title: markers[i].name,
+        html: '<h1>' + markers[i].name + '</h1> <p>' + markers[i].description + '</p>' +
+        '<p style="color: green">Price: <b>' + markers[i].price + ' DZA / H</b> </p>' +
+        '<button>reserve</button>'
+      }));
+    console.log(markers[i].description);
   }
 }
 
@@ -119,16 +279,23 @@ function autoUpdate() {
   });
   console.log('updated!');
   calculateAndDisplayRoute(directionsService, directionsDisplay, nearParkings[0]);
-  setTimeout(autoUpdate, 3000);
+  setTimeout(autoUpdate, 30000);
 }
 
-
+$('.accordion').accordion({
+  collapsible: true,
+  animate: 200,
+  active: 1
+});
 
 $('#submit').click(function (e) {
   var lng_ = $('#lng').val();
   var lat_ = $('#lat').val();
   var name_ = $('#name').val();
-  var link = 'add/' + lng_ + '/' + lat_ + '/' + name_;
+  var description_ = $('#desctiption').val();
+  var a_lots_ = $('#a_lots').val();
+  var t_lots_ = $('#t_lots').val();
+  var link = 'add/lqAna7NllTTuK0nVRaro/' + lng_ + '/' + lat_ + '/' + name_ + '/' + description_ + '/' + a_lots_ + '/' + t_lots_;
   var myRequest = new XMLHttpRequest();
   myRequest.open("GET", link, false);
   myRequest.send(link);
@@ -139,3 +306,5 @@ $('#submit').click(function (e) {
 
   e.preventDefault();
 });
+
+//});

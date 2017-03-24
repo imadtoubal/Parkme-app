@@ -1,39 +1,45 @@
 <!DOCTYPE html>
-<html >
+<html>
+
 <head>
   <meta charset="UTF-8">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="icon" type="image/x-icon" href="./favicon.ico">
   <title>Parking Me App</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 
-  <body>
-    <div id="app">
-      <div id="side">
-        <h1><img src="img/park-me.png" alt=""></h1>
-        <p>Park Me lets you quickly find available parkings near you in real time.</p>
-        <h3>Find parkings near you</h3>
-        <form ><button id="find">Find</button></form>
-        <div id="addParking">
-          <h3>Add a parking</h3>
-          <form action="">
-            <input type="text" id="lat" placeholder="Lattitude"/>
-            <input type="text" id="lng" placeholder="Longtitude"/>
-            <input type="text" id="name" placeholder="Parking name"/>
-            <button  id="submit" type="submit">Add parking </button>
-          </form>
-        </div>
-        
-        <p id="copy"><small>&copy <a href="http://toubal.com"> Analogique Solutions</a> 2017 Allrights reserved.</small></p>
+<body>
+  <div id="app">
+    <div id="side">
+      <h1><img src="img/park-me.png" alt=""></h1>
+      <p>Park Me lets you quickly find available parkings near you in real time.</p>
+      <h3>Find parkings near you</h3>
+      <form><button id="find">Find</button></form>
+      <h3>Or add your parking here!</h3>
+      <div id="addParking" class="accordion">
+        <h3 class="btn">Add a parking</h3>
+        <form action="">
+          <input required type="text" id="lat" placeholder="Lattitude" />
+          <input required type="text" id="lng" placeholder="Longtitude" />
+          <input required type="text" id="name" placeholder="Name" />
+          <input required type="textarea" id="description" placeholder="Describe parking and pricing..." />
+          <input required type="text" pattern="^([0-9]{1,2}){1}(\.[0-9]{1,2})?$" id="t_lots" placeholder="Number of total lots" />
+          <input required type="text" pattern="^([0-9]{1,2}){1}(\.[0-9]{1,2})?$" id="a_lots" placeholder="Available lots at the moment" />
+          <button  id="submit" type="submit">Add parking </button>
+        </form>
       </div>
-      <div id="map">
-        
-      </div>
+
+      <p id="copy"><small>&copy <a href="http://toubal.com"> Analogique Solutions</a> 2017 Allrights reserved.</small></p>
     </div>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC_0FF6obnd_oHtGX6Zcsxh-SP9f7qkmSo&callback=initMap"
-    async defer></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="js/main.js"></script>
-    
-  </body>
+    <div id="map">
+
+    </div>
+  </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCtT1FMYBZtyb5xcS1jq0E04nXiVZwk-NQ&callback=initMap" async defer></script>
+  <script src="js/main.js"></script>
+  
+</body>
+
 </html>
