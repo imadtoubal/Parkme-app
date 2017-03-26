@@ -6,6 +6,7 @@ var mysql = require('mysql');
 var app = express();
 var parkings;
 var apiKey = 'lqAna7NllTTuK0nVRaro';
+
 ///Connecting to database
 var config = require('./config');
 var connection = mysql.createConnection(config);
@@ -74,7 +75,9 @@ function nearParkings(request, response) {
   //console.log(data);
   //var q = 'SELECT * FROM maps.parkings where (lat >' + (data.lat - 1) + ' AND lat <'+ (data.lat + 1) + ') AND (lng >' (data.lng - 1) + 'AND lng <' + (data.lng + 1)+');';
   //I subtracted -1 because weird shit happens when i try to perform addition
-  var q = "SELECT * FROM maps.parkings where (lat > " + (data.lat - 2) + " AND lat < " + (data.lat - (-1)) + ") AND (lng > " + (data.lng - 1) + " AND lng <" + (data.lng - (-1)) + ");";
+
+  //approximately 4 kemoleters (0.02 * 2)
+  var q = "SELECT * FROM maps.parkings where (lat > " + (data.lat - .02) + " AND lat < " + (data.lat - (-.02)) + ") AND (lng > " + (data.lng - .02) + " AND lng <" + (data.lng - (-.02)) + ");";
   console.log(q);
   connection.query(q, function (error, results, fields) {
     if (error) {
@@ -90,13 +93,28 @@ function nearParkings(request, response) {
 
 //setting a pin to user
 app.get('/getpin/:id', function (request, response) {
+
   var id = request.params.id;
   var pin = Math.floor(1000 + Math.random() * 9000);
-  connection.query('update maps.parkings set pin =' + pin + ' where id = ' + id, function (error, results, fields) {
+  var newpin;
+  var index;
+  //Fetch the given parking and get it's pins
+  connection.query('select pin from maps.parkings where id = ' + id + ';', function (error, results, fields) {
     if (error)
-      console.log("something went wrong");
+      console.log("something went wrong in fetching");
+    newpin = JSON.parse(results[0].pin);
+    newpin.push(pin);
+
+    newpin = JSON.stringify(newpin);
+    console.log(newpin);
+    connection.query('update maps.parkings set pin ="' + newpin + '" where id = ' + id, function (error, results, fields) {
+      if (error)
+        console.log("something went wrong");
+    });
+
+    response.send({ pin: pin });
   });
-  response.send({ pin: pin });
+
 });
 
 
@@ -106,8 +124,27 @@ app.get('/setpin/:id/:pin', function (request, response) {
   connection.query('select * from maps.parkings where id = ' + data.id, function (error, results, fields) {
     if (error)
       respone.send(error);
-    if (results[0].pin == data.pin)
-      response.send("Success");
+    var temp = JSON.parse(results[0].pin);
+    var newpin;
+    var index = exists(data.pin, temp);
+    if (index != -1) {
+      //TODO: delete given pin from array and update database
+      connection.query('select pin from maps.parkings where id = ' + data.id + ';', function (error, results, fields) {
+        if (error)
+          console.log("something went wrong in fetching");
+
+        newpin = JSON.parse(results[0].pin);
+        newpin.splice(index, 1);
+        newpin = JSON.stringify(newpin);
+        console.log(newpin);
+        connection.query('update maps.parkings set pin ="' + newpin + '" where id = ' + data.id, function (error, results, fields) {
+          if (error)
+            console.log("something went wrong");
+        });
+
+        response.send("Success");
+      });
+    }
     else
       response.send("Fail");
   });
@@ -117,10 +154,10 @@ app.get('/setpin/:id/:pin', function (request, response) {
 function exists(obj, list) {
   var i;
   for (i = 0; i < list.length; i++) {
-    if (list[i] === obj) {
-      return true;
+    if (list[i] == obj) {
+      return i;
       console.log("exists");
     }
   }
-  return false;
+  return -1;
 }

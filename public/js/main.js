@@ -1,4 +1,3 @@
-//$(document).ready(function () {
 
 //Global Variables for the map
 var ctrls;
@@ -9,7 +8,8 @@ var nearParkings = [];
 //Loading parkings with JQuery
 var markers = new Object();
 var iw;
-
+var selectedParking;
+var pin;
 // if(navigator.geolocation) {
 //   navigator.geolocation.getCurrentPosition(function (position){
 
@@ -46,143 +46,8 @@ window.initMap = function () {
           },
           zoom: globalZoom,
           disableDefaultUI: true,
-          styles: [
-            {
-              "featureType": "all",
-              "elementType": "labels.text.fill",
-              "stylers": [
-                {
-                  "color": "#ffffff"
-                }
-              ]
-            },
-            {
-              "featureType": "all",
-              "elementType": "labels.text.stroke",
-              "stylers": [
-                {
-                  "color": "#000000"
-                },
-                {
-                  "lightness": 13
-                }
-              ]
-            },
-            {
-              "featureType": "administrative",
-              "elementType": "geometry.fill",
-              "stylers": [
-                {
-                  "color": "#000000"
-                }
-              ]
-            },
-            {
-              "featureType": "administrative",
-              "elementType": "geometry.stroke",
-              "stylers": [
-                {
-                  "color": "#144b53"
-                },
-                {
-                  "lightness": 14
-                },
-                {
-                  "weight": 1.4
-                }
-              ]
-            },
-            {
-              "featureType": "landscape",
-              "elementType": "all",
-              "stylers": [
-                {
-                  "color": "#08304b"
-                }
-              ]
-            },
-            {
-              "featureType": "poi",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#0c4152"
-                },
-                {
-                  "lightness": 5
-                }
-              ]
-            },
-            {
-              "featureType": "road.highway",
-              "elementType": "geometry.fill",
-              "stylers": [
-                {
-                  "color": "#000000"
-                }
-              ]
-            },
-            {
-              "featureType": "road.highway",
-              "elementType": "geometry.stroke",
-              "stylers": [
-                {
-                  "color": "#0b434f"
-                },
-                {
-                  "lightness": 25
-                }
-              ]
-            },
-            {
-              "featureType": "road.arterial",
-              "elementType": "geometry.fill",
-              "stylers": [
-                {
-                  "color": "#000000"
-                }
-              ]
-            },
-            {
-              "featureType": "road.arterial",
-              "elementType": "geometry.stroke",
-              "stylers": [
-                {
-                  "color": "#0b3d51"
-                },
-                {
-                  "lightness": 16
-                }
-              ]
-            },
-            {
-              "featureType": "road.local",
-              "elementType": "geometry",
-              "stylers": [
-                {
-                  "color": "#000000"
-                }
-              ]
-            },
-            {
-              "featureType": "transit",
-              "elementType": "all",
-              "stylers": [
-                {
-                  "color": "#146474"
-                }
-              ]
-            },
-            {
-              "featureType": "water",
-              "elementType": "all",
-              "stylers": [
-                {
-                  "color": "#021019"
-                }
-              ]
-            }
-          ]
+          styles: [{featureType:"all",elementType:"labels.text.fill",stylers:[{color:"#ffffff"}]},{featureType:"all",elementType:"labels.text.stroke",stylers:[{color:"#000000"},{lightness:13}]},{featureType:"administrative",elementType:"geometry.fill",stylers:[{color:"#000000"}]},{featureType:"administrative",elementType:"geometry.stroke",stylers:[{color:"#144b53"},{lightness:14},{weight:1.4}]},{featureType:"landscape",elementType:"all",stylers:[{color:"#08304b"}]},{featureType:"poi",elementType:"geometry",stylers:[{color:"#0c4152"},{lightness:5}]},{featureType:"road.highway",elementType:"geometry.fill",stylers:[{color:"#000000"}]},{featureType:"road.highway",elementType:"geometry.stroke",stylers:[{color:"#0b434f"},{lightness:25}]},{featureType:"road.arterial",elementType:"geometry.fill",stylers:[{color:"#000000"}]},{featureType:"road.arterial",elementType:"geometry.stroke",stylers:[{color:"#0b3d51"},{lightness:16}]},{featureType:"road.local",elementType:"geometry",stylers:[{color:"#000000"}]},{featureType:"transit",elementType:"all",stylers:[{color:"#146474"}]},{featureType:"water",elementType:"all",stylers:[{color:"#021019"}]}]
+          
         };
 
         //initializing and drawing the map on the document
@@ -200,12 +65,25 @@ window.initMap = function () {
           nearParkings[i].addListener('click', function () {
             iw.setContent(this.html);
             iw.open(map, this);
+            selectedParking = this;
+            calculateAndDisplayRoute(directionsService, directionsDisplay, selectedParking);
 
+            $('.parking').click(function () {
+              var id = Number($('.parking').attr('id').substring(1));
+              //TODO: get json 
+              $.getJSON('http://localhost:3000/getpin/' + id, function (data) {
+                pin = data.pin;
+                //for debugging
+                console.log(pin);
+
+                $('.parking').after('<h4>PIN: ' + pin + '<h4>');
+                $('.parking').hide();
+              });
+            });
           });
 
         }
 
-        calculateAndDisplayRoute(directionsService, directionsDisplay, nearParkings[0]);
         autoUpdate();
       });
     }, function () {
@@ -264,7 +142,7 @@ function getParkings() {
         title: markers[i].name,
         html: '<h1>' + markers[i].name + '</h1> <p>' + markers[i].description + '</p>' +
         '<p style="color: green">Price: <b>' + markers[i].price + ' DZA / H</b> </p>' +
-        '<button>reserve</button>'
+        '<button class="parking" id="p' + markers[i].id + '">reserve</button>'
       }));
     console.log(markers[i].description);
   }
@@ -278,8 +156,11 @@ function autoUpdate() {
     map.setCenter(newPoint);
   });
   console.log('updated!');
-  calculateAndDisplayRoute(directionsService, directionsDisplay, nearParkings[0]);
-  setTimeout(autoUpdate, 30000);
+  if (selectedParking) {
+    calculateAndDisplayRoute(directionsService, directionsDisplay, selectedParking);
+  }
+  //TO DO: update only while driving
+  //setTimeout(autoUpdate, 3000);
 }
 
 $('.accordion').accordion({
@@ -288,23 +169,26 @@ $('.accordion').accordion({
   active: 1
 });
 
-$('#submit').click(function (e) {
-  var lng_ = $('#lng').val();
-  var lat_ = $('#lat').val();
-  var name_ = $('#name').val();
-  var description_ = $('#desctiption').val();
-  var a_lots_ = $('#a_lots').val();
-  var t_lots_ = $('#t_lots').val();
-  var link = 'add/lqAna7NllTTuK0nVRaro/' + lng_ + '/' + lat_ + '/' + name_ + '/' + description_ + '/' + a_lots_ + '/' + t_lots_;
-  var myRequest = new XMLHttpRequest();
-  myRequest.open("GET", link, false);
-  myRequest.send(link);
-  alert('Added the parking ' + name_);
-  $('#lat').val('');
-  $('#lng').val('');
-  $('#name').val('');
+$(document).ready(function () {
 
-  e.preventDefault();
+  $('#submit').click(function (e) {
+    var lng_ = $('#lng').val();
+    var lat_ = $('#lat').val();
+    var name_ = $('#name').val();
+    var description_ = $('#desctiption').val();
+    var a_lots_ = $('#a_lots').val();
+    var t_lots_ = $('#t_lots').val();
+    var link = 'add/lqAna7NllTTuK0nVRaro/' + lng_ + '/' + lat_ + '/' + name_ + '/' + description_ + '/' + a_lots_ + '/' + t_lots_;
+    var myRequest = new XMLHttpRequest();
+    myRequest.open("GET", link, false);
+    myRequest.send(link);
+    alert('Added the parking ' + name_);
+    $('#lat').val('');
+    $('#lng').val('');
+    $('#name').val('');
+
+    e.preventDefault();
+  });
+
 });
 
-//});

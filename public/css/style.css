@@ -49,7 +49,7 @@ h3:before{
 #side{
   width: 30%;
   min-width: 300px;
-  background: linear-gradient(#333, rgba(0,0,0,0.8)), url('http://img10.deviantart.net/4418/i/2013/272/d/9/plexus_wallpaper_by_adenas599-d6oi81k.png');
+  background: linear-gradient(rgb(8, 48, 75), rgba(0,0,0,0.8)), url('http://img10.deviantart.net/4418/i/2013/272/d/9/plexus_wallpaper_by_adenas599-d6oi81k.png');
   background-size: over;
   color: #e3e3e3;
   padding: 30px;
