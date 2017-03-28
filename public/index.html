@@ -3,6 +3,8 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta id="meta" name="viewport"
+content="width=device-width; initial-scale=1.0" />
   <link rel="icon" type="image/x-icon" href="./favicon.ico">
   <title>Parking Me App</title>
   <link rel="stylesheet" href="css/style.css">
@@ -10,8 +12,17 @@
 
 <body>
   <div id="app">
-    <div id="side">
+   <div id="menu">
+      <div id="button">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
       <h1><img src="img/park-me.png" alt=""></h1>
+    </div>
+    
+    <div id="side" class="hide" >
+      
       <p>Park Me lets you quickly find available parkings near you in real time.</p>
       <h3>Find parkings near you</h3>
       <form><button id="find">Find</button></form>

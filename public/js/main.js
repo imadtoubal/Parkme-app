@@ -189,6 +189,11 @@ $(document).ready(function () {
 
     e.preventDefault();
   });
+  
+  $('#menu').click(function(){
+    console.log('clicked!');
+    $('#side').toggleClass('hide');
+  });
 
 });
 
