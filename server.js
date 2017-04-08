@@ -111,7 +111,7 @@ app.get('/getpin/:id', function (request, response) {
       if (error)
         console.log("something went wrong");
     });
-
+    setTimeout(removePin, 1200000, pin, id);
     response.send({ pin: pin });
   });
 
@@ -142,14 +142,35 @@ app.get('/setpin/:id/:pin', function (request, response) {
             console.log("something went wrong");
         });
 
-        response.send("Success");
+        response.send({message: "success"});
       });
     }
     else
-      response.send("Fail");
+      response.send({message: "fail"});
   });
 });
 //USEFULL FUNCTIONS==========================================
+
+function removePin(rp, id) {
+  connection.query('select * from maps.parkings where id = ' + id +';', function (error, results, fields) {
+    if (error)
+      respone.console.log('dafuq is going on in the world');
+    var temp = JSON.parse(results[0].pin);
+    
+    var index = exists(rp, temp);
+    if (index != -1) {
+        
+        temp.splice(index, 1);
+        temp = JSON.stringify(temp);
+        connection.query('update maps.parkings set pin ="' + temp + '" where id = ' + id, function (error, results, fields) {
+          if (error)
+            console.log("something went wrong");
+        });
+    }
+  });
+  console.log("Removed {rp}")
+}
+
 
 function exists(obj, list) {
   var i;

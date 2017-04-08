@@ -10,6 +10,7 @@ var markers = new Object();
 var iw;
 var selectedParking;
 var pin;
+var isTracking = false;
 // if(navigator.geolocation) {
 //   navigator.geolocation.getCurrentPosition(function (position){
 
@@ -46,8 +47,8 @@ window.initMap = function () {
           },
           zoom: globalZoom,
           disableDefaultUI: true,
-          styles: [{featureType:"all",elementType:"labels.text.fill",stylers:[{color:"#ffffff"}]},{featureType:"all",elementType:"labels.text.stroke",stylers:[{color:"#000000"},{lightness:13}]},{featureType:"administrative",elementType:"geometry.fill",stylers:[{color:"#000000"}]},{featureType:"administrative",elementType:"geometry.stroke",stylers:[{color:"#144b53"},{lightness:14},{weight:1.4}]},{featureType:"landscape",elementType:"all",stylers:[{color:"#08304b"}]},{featureType:"poi",elementType:"geometry",stylers:[{color:"#0c4152"},{lightness:5}]},{featureType:"road.highway",elementType:"geometry.fill",stylers:[{color:"#000000"}]},{featureType:"road.highway",elementType:"geometry.stroke",stylers:[{color:"#0b434f"},{lightness:25}]},{featureType:"road.arterial",elementType:"geometry.fill",stylers:[{color:"#000000"}]},{featureType:"road.arterial",elementType:"geometry.stroke",stylers:[{color:"#0b3d51"},{lightness:16}]},{featureType:"road.local",elementType:"geometry",stylers:[{color:"#000000"}]},{featureType:"transit",elementType:"all",stylers:[{color:"#146474"}]},{featureType:"water",elementType:"all",stylers:[{color:"#021019"}]}]
-          
+          styles: [{ featureType: "all", elementType: "labels.text.fill", stylers: [{ color: "#ffffff" }] }, { featureType: "all", elementType: "labels.text.stroke", stylers: [{ color: "#000000" }, { lightness: 13 }] }, { featureType: "administrative", elementType: "geometry.fill", stylers: [{ color: "#000000" }] }, { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#144b53" }, { lightness: 14 }, { weight: 1.4 }] }, { featureType: "landscape", elementType: "all", stylers: [{ color: "#08304b" }] }, { featureType: "poi", elementType: "geometry", stylers: [{ color: "#0c4152" }, { lightness: 5 }] }, { featureType: "road.highway", elementType: "geometry.fill", stylers: [{ color: "#000000" }] }, { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#0b434f" }, { lightness: 25 }] }, { featureType: "road.arterial", elementType: "geometry.fill", stylers: [{ color: "#000000" }] }, { featureType: "road.arterial", elementType: "geometry.stroke", stylers: [{ color: "#0b3d51" }, { lightness: 16 }] }, { featureType: "road.local", elementType: "geometry", stylers: [{ color: "#000000" }] }, { featureType: "transit", elementType: "all", stylers: [{ color: "#146474" }] }, { featureType: "water", elementType: "all", stylers: [{ color: "#021019" }] }]
+
         };
 
         //initializing and drawing the map on the document
@@ -66,18 +67,37 @@ window.initMap = function () {
             iw.setContent(this.html);
             iw.open(map, this);
             selectedParking = this;
+            isTracking = true;
             calculateAndDisplayRoute(directionsService, directionsDisplay, selectedParking);
 
             $('.parking').click(function () {
               var id = Number($('.parking').attr('id').substring(1));
               //TODO: get json 
               $.getJSON('http://localhost:3000/getpin/' + id, function (data) {
+                var time = 1200;
                 pin = data.pin;
+                pinElement = $('#pin');
                 //for debugging
                 console.log(pin);
-
+                setInterval(autoUpdate, 10000);
                 $('.parking').after('<h4>PIN: ' + pin + '<h4>');
                 $('.parking').hide();
+                pinElement.html('<b>PIN: </b>' + pin + ' - ' + n(Math.floor(time / 60)) + ':' + n(time % 60));
+                pinElement.removeClass('hidepin');
+                setInterval(function () {
+                  if (time > 0) {
+                    time--;
+                    pinElement.html('<b>PIN: </b>' + pin + ' - ' + n(Math.floor(time / 60)) + ':' + n(time % 60));
+                  }
+                  else {
+                    pinElement.html('<b>Expired</b>');
+                    clearInterval();
+                    setTimeout(function () {
+                      pinElement.addClass('hidepin');
+                    }, 1000);
+                  }
+                }, 1000);
+
               });
             });
           });
@@ -119,7 +139,7 @@ function calculateAndDisplayRoute(directionsService, directionsDisplay, park) {
 //function to configure the map
 function configMap(c) {
   map = new google.maps.Map(document.getElementById('map'), c);
-  var infoWindow = new google.maps.InfoWindow({ map: map });
+  //var infoWindow = new google.maps.InfoWindow({ map: map });
   //making a marker showing user location
   currentLocationMarker = new google.maps.Marker({
     position: c.center,
@@ -158,9 +178,10 @@ function autoUpdate() {
   console.log('updated!');
   if (selectedParking) {
     calculateAndDisplayRoute(directionsService, directionsDisplay, selectedParking);
+
   }
   //TO DO: update only while driving
-  //setTimeout(autoUpdate, 3000);
+  //if(isTracking)  setTimeout(autoUpdate, 3000);
 }
 
 $('.accordion').accordion({
@@ -189,11 +210,16 @@ $(document).ready(function () {
 
     e.preventDefault();
   });
-  
-  $('#menu').click(function(){
+
+  $('#menu').click(function () {
     console.log('clicked!');
     $('#side').toggleClass('hide');
   });
 
 });
 
+
+
+function n(n) {
+  return n > 9 ? "" + n : "0" + n;
+}
