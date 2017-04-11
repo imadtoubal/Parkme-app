@@ -25,8 +25,9 @@ connection.query('SELECT * FROM parkings', function (error, results, fields) {
 console.log(parkings);
 
 ///Starting server
+var port = process.env.PORT || 8080;
 console.log('Server is starting');
-var server = app.listen(3000, listening);
+var server = app.listen(port, listening);
 function listening() {
   console.log('listening...');
 }
