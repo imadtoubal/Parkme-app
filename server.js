@@ -142,35 +142,59 @@ app.get('/setpin/:id/:pin', function (request, response) {
             console.log("something went wrong");
         });
 
-        response.send({message: "success"});
+        response.send({ message: "success" });
+        ///decrement a lot.
+        updateParkingCount(id, -1);
       });
     }
     else
-      response.send({message: "fail"});
+      response.send({ message: "fail" });
   });
 });
+
+
+///checking out at parking 
+app.get('/out/:id/', function (request, response) {
+  var id = request.params.id;
+  //increment a lot.
+  updateParkingCount(id, 1);
+});
+
+
 //USEFULL FUNCTIONS==========================================
 
 function removePin(rp, id) {
-  connection.query('select * from maps.parkings where id = ' + id +';', function (error, results, fields) {
+  connection.query('select * from maps.parkings where id = ' + id + ';', function (error, results, fields) {
     if (error)
       respone.console.log('dafuq is going on in the world');
     var temp = JSON.parse(results[0].pin);
-    
+
     var index = exists(rp, temp);
     if (index != -1) {
-        
-        temp.splice(index, 1);
-        temp = JSON.stringify(temp);
-        connection.query('update maps.parkings set pin ="' + temp + '" where id = ' + id, function (error, results, fields) {
-          if (error)
-            console.log("something went wrong");
-        });
+
+      temp.splice(index, 1);
+      temp = JSON.stringify(temp);
+      connection.query('update maps.parkings set pin ="' + temp + '" where id = ' + id, function (error, results, fields) {
+        if (error)
+          console.log("something went wrong");
+      });
     }
   });
   console.log("Removed {rp}")
 }
 
+///update to increase parking count 
+function updateParkingCount(id, incdec) {
+  connection.query('select * from maps.parkings where id = ' + id + ';', function (error, results, fields) {
+    if (error)
+      respone.console.log('dafuq is going on in the world');
+    var cnt = results[0].a_lots + incdec;
+    connection.query('update maps.parkings set a_lots ="' + cnt + '" where id = ' + id, function (error, results, fields) {
+      if (error)
+        console.log("something went wrong");
+    });
+  });
+}
 
 function exists(obj, list) {
   var i;

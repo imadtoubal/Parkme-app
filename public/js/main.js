@@ -92,6 +92,7 @@ window.initMap = function () {
                   else {
                     pinElement.html('<b>Expired</b>');
                     clearInterval();
+                    //stays one more second and displays expired.
                     setTimeout(function () {
                       pinElement.addClass('hidepin');
                     }, 1000);
@@ -207,6 +208,9 @@ $(document).ready(function () {
     $('#lat').val('');
     $('#lng').val('');
     $('#name').val('');
+    $('#a_lots').val('');
+    $('#t_lots').val('');
+    $('#description').val('');
 
     e.preventDefault();
   });
@@ -223,3 +227,5 @@ $(document).ready(function () {
 function n(n) {
   return n > 9 ? "" + n : "0" + n;
 }
+
+
