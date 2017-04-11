@@ -57,7 +57,7 @@ function addParking(request, response) {
 
   console.log(parking);
 
-  connection.query('INSERT INTO maps.parkings SET ?', parking, function (err, result) {
+  connection.query('INSERT INTO parkmappdb.parkings SET ?', parking, function (err, result) {
     console.log("Good");
     if (err) console.log(err);
   });
@@ -73,11 +73,11 @@ function nearParkings(request, response) {
   var data = request.params;
   var np = [];
   //console.log(data);
-  //var q = 'SELECT * FROM maps.parkings where (lat >' + (data.lat - 1) + ' AND lat <'+ (data.lat + 1) + ') AND (lng >' (data.lng - 1) + 'AND lng <' + (data.lng + 1)+');';
+  //var q = 'SELECT * FROM parkmappdb.parkings where (lat >' + (data.lat - 1) + ' AND lat <'+ (data.lat + 1) + ') AND (lng >' (data.lng - 1) + 'AND lng <' + (data.lng + 1)+');';
   //I subtracted -1 because weird shit happens when i try to perform addition
 
   //approximately 4 kemoleters (0.02 * 2)
-  var q = "SELECT * FROM maps.parkings where (lat > " + (data.lat - .02) + " AND lat < " + (data.lat - (-.02)) + ") AND (lng > " + (data.lng - .02) + " AND lng <" + (data.lng - (-.02)) + ");";
+  var q = "SELECT * FROM parkmappdb.parkings where (lat > " + (data.lat - .02) + " AND lat < " + (data.lat - (-.02)) + ") AND (lng > " + (data.lng - .02) + " AND lng <" + (data.lng - (-.02)) + ");";
   console.log(q);
   connection.query(q, function (error, results, fields) {
     if (error) {
@@ -99,7 +99,7 @@ app.get('/getpin/:id', function (request, response) {
   var newpin;
   var index;
   //Fetch the given parking and get it's pins
-  connection.query('select pin from maps.parkings where id = ' + id + ';', function (error, results, fields) {
+  connection.query('select pin from parkmappdb.parkings where id = ' + id + ';', function (error, results, fields) {
     if (error)
       console.log("something went wrong in fetching");
     newpin = JSON.parse(results[0].pin);
@@ -107,7 +107,7 @@ app.get('/getpin/:id', function (request, response) {
 
     newpin = JSON.stringify(newpin);
     console.log(newpin);
-    connection.query('update maps.parkings set pin ="' + newpin + '" where id = ' + id, function (error, results, fields) {
+    connection.query('update parkmappdb.parkings set pin ="' + newpin + '" where id = ' + id, function (error, results, fields) {
       if (error)
         console.log("something went wrong");
     });
@@ -121,7 +121,7 @@ app.get('/getpin/:id', function (request, response) {
 //checking at parking entrance
 app.get('/setpin/:id/:pin', function (request, response) {
   var data = request.params;
-  connection.query('select * from maps.parkings where id = ' + data.id, function (error, results, fields) {
+  connection.query('select * from parkmappdb.parkings where id = ' + data.id, function (error, results, fields) {
     if (error)
       respone.send(error);
     var temp = JSON.parse(results[0].pin);
@@ -129,7 +129,7 @@ app.get('/setpin/:id/:pin', function (request, response) {
     var index = exists(data.pin, temp);
     if (index != -1) {
       //TODO: delete given pin from array and update database
-      connection.query('select pin from maps.parkings where id = ' + data.id + ';', function (error, results, fields) {
+      connection.query('select pin from parkmappdb.parkings where id = ' + data.id + ';', function (error, results, fields) {
         if (error)
           console.log("something went wrong in fetching");
 
@@ -137,7 +137,7 @@ app.get('/setpin/:id/:pin', function (request, response) {
         newpin.splice(index, 1);
         newpin = JSON.stringify(newpin);
         console.log(newpin);
-        connection.query('update maps.parkings set pin ="' + newpin + '" where id = ' + data.id, function (error, results, fields) {
+        connection.query('update parkmappdb.parkings set pin ="' + newpin + '" where id = ' + data.id, function (error, results, fields) {
           if (error)
             console.log("something went wrong");
         });
@@ -164,7 +164,7 @@ app.get('/out/:id/', function (request, response) {
 //USEFULL FUNCTIONS==========================================
 
 function removePin(rp, id) {
-  connection.query('select * from maps.parkings where id = ' + id + ';', function (error, results, fields) {
+  connection.query('select * from parkmappdb.parkings where id = ' + id + ';', function (error, results, fields) {
     if (error)
       respone.console.log('dafuq is going on in the world');
     var temp = JSON.parse(results[0].pin);
@@ -174,7 +174,7 @@ function removePin(rp, id) {
 
       temp.splice(index, 1);
       temp = JSON.stringify(temp);
-      connection.query('update maps.parkings set pin ="' + temp + '" where id = ' + id, function (error, results, fields) {
+      connection.query('update parkmappdb.parkings set pin ="' + temp + '" where id = ' + id, function (error, results, fields) {
         if (error)
           console.log("something went wrong");
       });
@@ -185,11 +185,11 @@ function removePin(rp, id) {
 
 ///update to increase parking count 
 function updateParkingCount(id, incdec) {
-  connection.query('select * from maps.parkings where id = ' + id + ';', function (error, results, fields) {
+  connection.query('select * from parkmappdb.parkings where id = ' + id + ';', function (error, results, fields) {
     if (error)
       respone.console.log('dafuq is going on in the world');
     var cnt = results[0].a_lots + incdec;
-    connection.query('update maps.parkings set a_lots ="' + cnt + '" where id = ' + id, function (error, results, fields) {
+    connection.query('update parkmappdb.parkings set a_lots ="' + cnt + '" where id = ' + id, function (error, results, fields) {
       if (error)
         console.log("something went wrong");
     });
