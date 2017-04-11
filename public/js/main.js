@@ -80,7 +80,7 @@ window.initMap = function () {
             $('.parking').click(function () {
               var id = Number($('.parking').attr('id').substring(1));
               //TODO: get json 
-              $.getJSON('http://localhost:3000/getpin/' + id, function (data) {
+              $.getJSON('/getpin/' + id, function (data) {
                 var time = 1200;
                 pin = data.pin;
                 pinElement = $('#pin');
