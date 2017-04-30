@@ -2,7 +2,7 @@
 //Global Variables for the map
 var ctrls;
 var map;
-var globalZoom = 14;
+var globalZoom = 15;
 var currentLocationMarker;
 var nearParkings = [];
 //Loading parkings with JQuery
@@ -69,15 +69,20 @@ window.initMap = function () {
         //   iw.setContent(this.html);
         //   iw.open(map, this);
         // });
+
+        $('#overlay').fadeOut();
+
+
         for (var i = 0; i < nearParkings.length; i++) {
           nearParkings[i].addListener('click', function () {
             iw.setContent(this.html);
             iw.open(map, this);
+            //map.setCenter(new google.maps.LatLng(this.lat, this.lng));
             selectedParking = this;
             isTracking = true;
-            calculateAndDisplayRoute(directionsService, directionsDisplay, selectedParking);
 
             $('.parking').click(function () {
+              calculateAndDisplayRoute(directionsService, directionsDisplay, selectedParking);
               var id = Number($('.parking').attr('id').substring(1));
               //TODO: get json 
               $.getJSON('/getpin/' + id, function (data) {
@@ -87,7 +92,7 @@ window.initMap = function () {
                 //for debugging
                 console.log(pin);
                 setInterval(autoUpdate, 10000);
-                $('.parking').after('<h4>PIN: ' + pin + '<h4>');
+                $('.parking').after('<p>PIN: ' + pin + '</p>');
                 $('.parking').hide();
                 pinElement.html('<b>PIN: </b>' + pin + ' - ' + n(Math.floor(time / 60)) + ':' + n(time % 60));
                 pinElement.removeClass('hidepin');
